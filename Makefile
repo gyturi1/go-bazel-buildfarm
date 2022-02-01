@@ -62,7 +62,7 @@ bazel_toolchain_repo_root := ~/git/bazel-toolchains
 rbconfig:
 	@echo "This is the toolchain config generated with: https://github.com/bazelbuild/bazel-toolchains"
 	@echo "In order to smoothly use remote execution you should configure bazel toolchains"
-	@$(bazel_toolchain_repo_root) && go build -o rbe_configs_gen ./cmd/rbe_configs_gen/rbe_configs_gen.go
+	@cd $(bazel_toolchain_repo_root) && go build -o rbe_configs_gen ./cmd/rbe_configs_gen/rbe_configs_gen.go
 	@$(bazel_toolchain_repo_root)/rbe_configs_gen \
     	--bazel_version=4.2.1 \
     	--toolchain_container=$$(docker images --filter "reference=$(rbe_image)" --format="{{.Digest}}") \
@@ -88,14 +88,15 @@ run_buildfarm_worker:
 
 .PHONY: run_buildfarm_server
 run_buildfarm_server:
-	@echo "Buildfarm implements remote execution api, so can be used by bazel (as a client) to sen dremote excution request"
+	@echo "Buildfarm implements remote execution api, so can be used by bazel (as a client) to send remote excution request"
 	@stat $(bazel_buildfarm_repo_root) &> /dev/null || (echo please check out bazel-buildfarm repo && exit 1)
 	@cd $(bazel_buildfarm_repo_root) \
 		&& bazel run //src/main/java/build/buildfarm:buildfarm-server -- --jvm_flag=-Djava.util.logging.config.file=$$PWD/examples/debug.logging.properties $$PWD/examples/server.config.example
 
 .PHONY: run_local_docker_registry
 run_local_docker_registry:
-	@echo "To build the buildfarm worker with rbe_container, the image needs to be push into a registry"
+	@echo "To build the buildfarm worker with rbe_container, the image needs to be pushed into a registry"
+	@echo "See: https://bazelbuild.github.io/bazel-buildfarm/docs/architecture/worker-execution-environment/"
 	@docker volume create local_registry_volume
 	@docker start local_regsitry || docker run --net=host --name local_registry -v local_registry_volume:/var/lib/registry registry:2
 
@@ -114,8 +115,8 @@ build_isolated_runner_bullseye:
 build_isolated_runner_alpine:
 	@echo "This is a container for using locally to prepare for remote execution, using alpine to isolate more"
 	@echo "NOTE libcompat6 is installed inside, because https://go.dev/dl/ provides only libc dinamically linked version"
-	@echo "Gazelle downloads the Go SDK from https://go.dev/dl/, but in alpine it it wont work"
-	@echo "Better download a Musl based go toolchain with https://github.com/bazelbuild/rules_go/blob/master/go/toolchains.rst#go_download_sdk"
+	@echo "rules_go downloads the Go SDK from https://go.dev/dl/, but in alpine it won't work"
+	@echo "TODO: Better download a Musl based go toolchain with https://github.com/bazelbuild/rules_go/blob/master/go/toolchains.rst#go_download_sdk"
 	@cd build-container && docker build -t $(build_image):alpine -f Dockerfile.alpine .
 
 build_image := localhost:5000/isolated-runner
