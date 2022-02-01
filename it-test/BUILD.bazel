@@ -1,0 +1,16 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_test")
+load("//tools/test_rules:gen.bzl", "test_in_docker")
+
+go_test(
+    name = "it-test_test",
+    size = "small",
+    srcs = ["it_test.go"],
+    tags = [
+        "manual",
+    ],
+)
+
+test_in_docker(
+    name = "docker_macro",
+    servieUnderTest = "//cmd",
+)

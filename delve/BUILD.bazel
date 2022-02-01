@@ -1,0 +1,44 @@
+#load("@io_bazel_rules_docker//docker/util:run.bzl", "container_run_and_extract")
+#
+##try with:
+##build:docker-sandbox --noexperimental_docker_use_customized_images
+##build:docker-sandbox --sandbox_add_mount_pair=/var/run/docker.sock:/var/run/docker.sock
+##Does not work due to docker.sock premission denied.
+##Bazel with docker spawn strategy always pass -user 1000:1000 to docker run so that's why the mounted docker.sock is unaccessible in the docker-sandbox.
+##Tried exclude with tags with no success
+##so better use genrule,
+##or fix it in bazel itself (but i guess there are good reason to pass user in), or in the container_run_and_extract rule (make it obeying the local/no-sandbox tag)
+#
+#container_run_and_extract(
+#    name = "dlv",
+#    commands = [
+#        "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install -ldflags '-s -w -extldflags -static' github.com/go-delve/delve/cmd/dlv@v1.7.2",
+#    ],
+#    extract_file = "/go/bin/dlv",
+#    image = "@go_builder_image//image",
+#    tags = [
+#        "local",
+#        "no-sandbox",
+#        "requires-fakeroot",
+#    ],
+#    visibility = ["//visibility:public"],
+#)
+
+genrule(
+    name = "delve",
+    srcs = ["Dockerfile"],
+    outs = ["dlv"],
+    cmd = """
+        sh -c 'cd $$(dirname $(location Dockerfile)) && docker build -t tools/dlv_linnux_amd64_builder -f Dockerfile .' \\
+        && docker run -d --name dlv_linnux_amd64_container tools/dlv_linnux_amd64_builder \\
+		&& docker cp dlv_linnux_amd64_container:/go/bin/dlv $@ \\
+		&& docker stop dlv_linnux_amd64_container \\
+		&& docker rm dlv_linnux_amd64_container \\
+        && docker image rm tools/dlv_linnux_amd64_builder
+        """,
+    message = "building dlv_linnux_amd64",
+    tags = [
+        "no-sandbox",
+    ],
+    visibility = ["//visibility:public"],
+)

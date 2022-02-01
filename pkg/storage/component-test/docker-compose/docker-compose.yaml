@@ -1,0 +1,20 @@
+version: '3.4'
+
+volumes:
+  buckets:
+
+services:
+  fakestorage:
+    image: fsouza/fake-gcs-server:latest
+    env_file: .env
+    entrypoint: ["/bin/sh", "-c" , "mkdir -p /data/${BUCKET} && /bin/fake-gcs-server -data /data -backend filesystem -filesystem-root /data -public-host fakestorage:${FAKESTORAGE_PORT} -scheme http -host 0.0.0.0 -port 4000"]
+    environment:
+      - TZ=Europe/Budapest
+    ports:
+       - "${FAKESTORAGE_PORT}:4000"
+    volumes:
+      - type: volume
+        source: buckets
+        target: /data
+        volume:
+          nocopy: true

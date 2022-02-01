@@ -1,0 +1,38 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "storage",
+    srcs = [
+        "googlestorage.go",
+        "localstorage.go",
+        "storage.go",
+    ],
+    importpath = "github.com/gyturi/go-bazel-buildfarm/pkg/storage",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_github_rs_zerolog//:zerolog",
+        "@com_google_cloud_go_storage//:storage",
+        "@org_golang_google_api//iterator",
+        "@org_golang_google_api//option",
+    ],
+)
+
+alias(
+    name = "go_default_library",
+    actual = ":storage",
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "storage_test",
+    size = "small",
+    srcs = [
+        "googlestorage_test.go",
+        "storage_test.go",
+    ],
+    data = [
+        "//pkg/storage/test-data:test_cred.json",
+        "//pkg/storage/test-data:test_cred_invalid.json",
+    ],
+    embed = [":storage"],
+)

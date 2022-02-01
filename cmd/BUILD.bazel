@@ -1,0 +1,60 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("@io_bazel_rules_docker//container:container.bzl", "container_image", "container_layer")
+
+go_library(
+    name = "cmd_lib",
+    srcs = ["server.go"],
+    importpath = "github.com/gyturi/go-bazel-buildfarm/cmd",
+    visibility = ["//visibility:private"],
+    deps = ["//pkg"],
+)
+
+go_binary(
+    name = "cmd",
+    embed = [":cmd_lib"],
+    visibility = ["//visibility:public"],
+)
+
+container_layer(
+    name = "layer_dlv",
+    files = ["//delve:dlv"],
+    visibility = ["//visibility:private"],
+)
+
+container_layer(
+    name = "layer_app",
+    files = [":cmd"],
+    visibility = ["//visibility:private"],
+)
+
+container_image(
+    name = "development",
+    base = "@go_debug_image_static//image",
+    entrypoint = ["/dlv"],
+    layers = [
+        ":layer_dlv",
+        ":layer_app",
+    ],
+    user = "nonroot",
+    visibility = ["//visibility:private"],
+)
+
+container_image(
+    name = "production",
+    base = "@go_image_static//image",
+    entrypoint = ["/cmd"],
+    layers = [
+        ":layer_app",
+    ],
+    user = "nonroot",
+    visibility = ["//visibility:private"],
+)
+
+alias(
+    name = "image",
+    actual = select({
+        "//:debug_build": ":development",
+        "//conditions:default": ":production",
+    }),
+    visibility = ["//visibility:public"],
+)

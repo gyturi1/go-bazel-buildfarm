@@ -1,0 +1,17 @@
+FROM alpine:3.15
+
+RUN apk --no-cache update && apk add --no-cache curl  git gcc g++ python3-dev zip wget docker
+
+RUN apk --no-cache add bazel4 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing
+
+RUN apk --no-cache update && apk add --no-cache make
+RUN apk --no-cache update && apk add --no-cache libstdc++
+
+RUN apk --no-cache update && apk add --no-cache xz python3 coreutils tar patch diffutils
+RUN apk --no-cache upgrade g++ libstdc++ -X https://mirrors.sjtug.sjtu.edu.cn/alpine/edge/main
+
+RUN apk --no-cache update && apk add --no-cache bash
+RUN apk --no-cache update && apk add --no-cache libc6-compat
+
+#openjdk-11-jdk-headless
+#apt-transport-https software-properties-common gnupg2

@@ -1,0 +1,88 @@
+diff --git a/.gitignore b/.gitignore
+index 3636cda2..91d60275 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -20,3 +20,4 @@ unused_deps
+ buildozer
+ java_formatter.jar
+ lcov
++target
+diff --git a/BUILD b/BUILD
+index b1b2e356..43a62cc3 100644
+--- a/BUILD
++++ b/BUILD
+@@ -1,5 +1,7 @@
+ load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
+ load("@io_bazel_rules_docker//java:image.bzl", "java_image")
++load("@io_bazel_rules_docker//container:container.bzl", "container_image", "container_layer")
++
+ 
+ package(default_visibility = ["//visibility:public"])
+ 
+@@ -107,3 +109,13 @@ java_image(
+         "//src/main/java/build/buildfarm/worker/shard",
+     ],
+ )
++
++java_image(
++    name = "buildfarm-worker-test",
++    classpath_resources = [
++        "//src/main/java/build/buildfarm:configs",
++    ],
++    base = "@rbe_image_base//image",
++    runtime_deps = ["//src/main/java/build/buildfarm/worker/memory"],
++    main_class = "build.buildfarm.worker.memory.Worker",
++)
+\ No newline at end of file
+diff --git a/examples/worker.config.example b/examples/worker.config.example
+index 3b2f2fa5..f6a6418c 100644
+--- a/examples/worker.config.example
++++ b/examples/worker.config.example
+@@ -116,10 +116,28 @@ platform: {
+   # 'platform' is a sufficient starting point without specifying
+   # any platform requirements on the actions' side
+   ###
+-  # properties: {
+-  #   name: "key_name"
+-  #   value: "value_string"
+-  # }
++  properties: [
++    {
++      name: "os"
++      value: "linux"
++    },
++    {
++      name: "cpu"
++      value: "x86_64"
++    },
++    {
++      name: "OSFamily"
++      value: "Linux"
++    },
++    {
++      name: "cc_compiler"
++      value: "clang"
++    },
++    {
++      name: "container-image"
++      value: "docker://localhost:5000/test-rbe-container@!!!REPLACE!!!"
++    }
++  ]
+ }
+ 
+ # this platform is applied to any executed command to fill in
+diff --git a/images.bzl b/images.bzl
+index a599f0fb..c6216d26 100644
+--- a/images.bzl
++++ b/images.bzl
+@@ -39,3 +39,10 @@ def buildfarm_images():
+         repository = "amazoncorretto",
+         tag = "15",
+     )
++
++    container_pull(
++        name = "rbe_image_base",
++        digest = "!!!REPLACE!!!",
++        registry = "localhost:5000",
++        repository = "test-rbe-container",
++    )

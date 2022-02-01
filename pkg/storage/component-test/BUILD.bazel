@@ -1,0 +1,22 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_test")
+load("//tools/test_rules:gen.bzl", "test_in_docker_compose")
+
+go_test(
+    name = "component-test_test",
+    size = "small",
+    srcs = ["googlestorage_component_test.go"],
+    tags = ["manual"],
+    deps = [
+        "//pkg/storage",
+        "@com_github_stretchr_testify//assert",
+    ],
+)
+
+test_in_docker_compose(
+    name = "docker_compose_macro",
+    dataFiles = [
+        "//pkg/storage/test-data:test_cred.json",
+        "//pkg/storage/test-data:test_cred_invalid.json",
+    ],
+    goTest = ":component-test_test",
+)

@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  test-runner:
+    image: ${test_runner_image}
+    env_file: .env
+    environment:
+      - TZ=Europe/Budapest
+    depends_on:
+      - fakestorage
