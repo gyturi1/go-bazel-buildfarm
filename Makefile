@@ -43,9 +43,9 @@ rbe_image_tag := v2
 rbe_image := localhost:5000/test-rbe-container
 .PHONY: rbe_container
 rbe_container: run_local_docker_registry
-	@echo "This is the container in which the remote worker will be running, google has official rbe container, but you can build your own of course"
-	@echo Google has official rbe container: https://console.cloud.google.com/marketplace/details/google/rbe-ubuntu16-04 but you can build your own of course"
-	@echo But you can build your own of course"
+	@echo "This is the container in which the remote worker will be running"
+	@echo "Google has official rbe container: https://console.cloud.google.com/marketplace/details/google/rbe-ubuntu16-04"
+	@echo "But you can build your own of course"
 
 	@cd rbe-container && docker build -t $(rbe_image):$(rbe_image_tag) .
 	@docker push $(rbe_image):$(rbe_image_tag)
