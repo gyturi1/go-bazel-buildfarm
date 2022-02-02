@@ -1,4 +1,4 @@
-workspace(name = "com_github_gyturi_go_bazel_buildfarm")
+workspace(name = "com_github_gyturi1_go_bazel_buildfarm")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 

@@ -4,7 +4,7 @@ load("@io_bazel_rules_docker//container:container.bzl", "container_image", "cont
 go_library(
     name = "cmd_lib",
     srcs = ["server.go"],
-    importpath = "github.com/gyturi/go-bazel-buildfarm/cmd",
+    importpath = "github.com/gyturi1/go-bazel-buildfarm/cmd",
     visibility = ["//visibility:private"],
     deps = ["//pkg"],
 )

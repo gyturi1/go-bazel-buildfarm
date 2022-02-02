@@ -1,6 +1,6 @@
 load("@bazel_gazelle//:def.bzl", "gazelle")
 
-# gazelle:prefix github.com/gyturi/go-bazel-buildfarm
+# gazelle:prefix github.com/gyturi1/go-bazel-buildfarm
 # gazelle:proto disable
 # gazelle:go_naming_convention import_alias
 # gazelle:exclude tools/m10s_template

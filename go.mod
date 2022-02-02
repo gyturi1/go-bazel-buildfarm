@@ -1,4 +1,4 @@
-module github.com/gyturi/go-bazel-buildfarm
+module github.com/gyturi1/go-bazel-buildfarm
 
 go 1.17
 

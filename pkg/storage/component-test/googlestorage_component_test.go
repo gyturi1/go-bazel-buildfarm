@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gyturi/go-bazel-buildfarm/pkg/storage"
+	"github.com/gyturi1/go-bazel-buildfarm/pkg/storage"
 	"github.com/stretchr/testify/assert"
 )
 

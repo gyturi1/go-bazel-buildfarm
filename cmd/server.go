@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gyturi/go-bazel-buildfarm/pkg"
+	"github.com/gyturi1/go-bazel-buildfarm/pkg"
 )
 
 const PORT = "8080"
